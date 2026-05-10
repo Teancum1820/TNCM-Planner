@@ -1,16 +1,20 @@
-const CACHE_NAME = 'first-things-planner-v1';
+const CACHE_NAME = 'first-things-planner-v2';
 const APP_SHELL = [
-  '/',
-  '/index.html',
-  '/src/main.js',
-  '/src/styles.css',
-  '/manifest.webmanifest',
-  '/icons/icon-192.svg',
-  '/icons/icon-512.svg',
+  './',
+  './index.html',
+  './src/main.js',
+  './src/styles.css',
+  './manifest.webmanifest',
+  './icons/icon-192.svg',
+  './icons/icon-512.svg',
 ];
 
+const toCacheUrl = (path) => new URL(path, self.registration.scope).toString();
+const APP_SHELL_URLS = APP_SHELL.map(toCacheUrl);
+const INDEX_URL = toCacheUrl('./index.html');
+
 self.addEventListener('install', (event) => {
-  event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL)));
+  event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL_URLS)));
   self.skipWaiting();
 });
 
@@ -32,11 +36,13 @@ self.addEventListener('fetch', (event) => {
 
       return fetch(event.request)
         .then((response) => {
-          const copy = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+          if (response.ok && new URL(event.request.url).origin === self.location.origin) {
+            const copy = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+          }
           return response;
         })
-        .catch(() => caches.match('/index.html'));
+        .catch(() => caches.match(INDEX_URL));
     }),
   );
 });
