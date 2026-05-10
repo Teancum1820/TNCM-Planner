@@ -1,0 +1,10 @@
+{
+  "name": "tncm-planner",
+  "version": "1.0.0",
+  "description": "A faith-centered PWA planner that helps users put God first while organizing daily goals.",
+  "private": true,
+  "scripts": {
+    "start": "python3 -m http.server 5173",
+    "build": "node scripts/validate-app.js"
+  }
+}
